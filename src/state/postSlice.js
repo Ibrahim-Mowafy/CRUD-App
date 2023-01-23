@@ -20,6 +20,20 @@ export const fetchPosts = createAsyncThunk(
     }
   }
 );
+export const deletePost = createAsyncThunk(
+  'posts/deletePost',
+  async (id, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      await fetch(`http://localhost:3001/posts/${id}`, {
+        method: 'DELETE',
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const postSlice = createSlice({
   name: 'posts',
@@ -39,8 +53,21 @@ const postSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // create post
+
     // delete posts
+    [deletePost.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [deletePost.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.records = state.records.filter((el) => el.id !== action.payload);
+    },
+    [deletePost.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    // create post
     // edit posts
   },
 });
