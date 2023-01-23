@@ -16,11 +16,17 @@ const EditPost = () => {
   const [description, setDescription] = useState('');
 
   useEffect(() => {
-    if (record && !title && !description) {
+    if (record) {
       setTitle(record?.title);
       setDescription(record?.description);
     }
-  }, [record, title, description]);
+  }, [record]);
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'posts/cleanRecord' });
+    };
+  }, [dispatch]);
 
   const formHandler = (e) => {
     e.preventDefault();
