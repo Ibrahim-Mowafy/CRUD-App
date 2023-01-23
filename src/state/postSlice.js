@@ -1,16 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const initialState = {
-  records: [],
-  loading: false,
-  error: null,
-};
+const initialState = { records: [], loading: false, error: null };
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
-
     try {
       const res = await fetch('http://localhost:3001/posts');
       const data = await res.json();
@@ -20,6 +15,7 @@ export const fetchPosts = createAsyncThunk(
     }
   }
 );
+
 export const deletePost = createAsyncThunk(
   'posts/deletePost',
   async (id, thunkAPI) => {
@@ -35,12 +31,35 @@ export const deletePost = createAsyncThunk(
   }
 );
 
+export const insertPost = createAsyncThunk(
+  'posts/insertPost',
+  async (item, thunkAPI) => {
+    const { rejectWithValue, getState } = thunkAPI;
+    const { auth } = getState();
+    item.userId = auth.id;
+
+    try {
+      const res = await fetch('http://localhost:3001/posts', {
+        method: 'POST',
+        body: JSON.stringify(item),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      });
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const postSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {},
   extraReducers: {
-    // fetch posts
+    //fetch posts
     [fetchPosts.pending]: (state) => {
       state.loading = true;
       state.error = null;
@@ -53,8 +72,20 @@ const postSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-
-    // delete posts
+    //create post
+    [insertPost.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [insertPost.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.records.push(action.payload);
+    },
+    [insertPost.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    //delete post
     [deletePost.pending]: (state) => {
       state.loading = true;
       state.error = null;
@@ -67,8 +98,8 @@ const postSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // create post
-    // edit posts
+
+    //edit post
   },
 });
 
