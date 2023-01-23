@@ -68,6 +68,26 @@ export const insertPost = createAsyncThunk(
   }
 );
 
+export const editPost = createAsyncThunk(
+  'posts/editPost',
+  async (item, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await fetch(`http://localhost:3001/posts/${item.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(item),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      });
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const postSlice = createSlice({
   name: 'posts',
   initialState,
@@ -126,8 +146,19 @@ const postSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-
     //edit post
+    [editPost.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [editPost.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.record = action.payload;
+    },
+    [editPost.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
