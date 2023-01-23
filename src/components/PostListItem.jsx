@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 
-const PostListItem = ({ data, deleteRecord }) => {
+const PostListItem = ({ data, deleteRecord, isLoggedIn }) => {
   const navigate = useNavigate();
   const deleteHandler = (item) => {
     if (
@@ -27,7 +27,11 @@ const PostListItem = ({ data, deleteRecord }) => {
           >
             Edit
           </Button>
-          <Button variant="danger" onClick={() => deleteHandler(el)}>
+          <Button
+            variant="danger"
+            onClick={() => deleteHandler(el)}
+            disabled={!isLoggedIn}
+          >
             Delete
           </Button>
         </ButtonGroup>
